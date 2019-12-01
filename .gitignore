@@ -1,5 +1,7 @@
 #My gitignore-files
 .idea
+__init__.py
+.coveragerc
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
