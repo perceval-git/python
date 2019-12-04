@@ -71,7 +71,3 @@ if __name__ == "__main__":
     READ_X = ReaderXml()
     BUF = READ_X.read("file.xml")
     print(BUF.tag)
-
-    LENGTH = len(BUF)
-    for i in range(LENGTH):
-        print(BUF[i].tag + ': ' + BUF[i].text)

@@ -1,21 +1,5 @@
-"""Draw figures"""
+"""Draw figures: circle, oval and square"""
 from abc import ABC, abstractmethod
-import time
-
-
-class timer():
-    """Time of programm"""
-    def __init__(self):
-        self.start = time.time()
-
-    def current_time(self):
-        return time.time() - self.start
-
-    def __enter__(self):
-        return self
-
-    def __exit__(self, *args):
-        print('Elapsed: {}'.format(self.current_time()))
 
 
 class Figure(ABC):
@@ -50,46 +34,50 @@ class Circle(Figure):
         # if self.size < 5 or self.size > 10:
         print(' ' * (self.size + 3) + '*  ' * (self.size//2), end='')
         print()
-        print(' ' * (self.size//2) + ' *' + ' ' * self.size + ' ' * (self.size//2 + self.size//2 + self.size//2) + '*', end='')
+        print(' ' * (self.size//2) + ' *' + ' ' * self.size
+              + ' ' * (self.size//2 + self.size//2 + self.size//2) + '*', end='')
         print()
-        print(' ' * (self.size // 2 - 3) + ' *' + ' ' * (self.size + 3) + ' ' * (self.size // 2 + self.size//2 + self.size//2 + 2) + '*', end='')
+        print(' ' * (self.size // 2 - 3) + ' *' + ' ' * (self.size + 3)
+              + ' ' * (self.size // 2 + self.size//2 + self.size//2 + 2) + '*', end='')
         print()
-        for i in range(self.size//2 + 1):
+        for _ in range(self.size//2 + 1):
             print('*', end='')
-            for j in range(int(self.size) * 3 + self.size//2 + 1):
+            for _ in range(int(self.size) * 3 + self.size//2 + 1):
                 print(' ', end='')
             print('*')
         print(end='')
-        print(' ' * (self.size // 2 - 3) + ' *' + ' ' * (self.size + 3) + ' ' * (self.size // 2 + self.size // 2 + self.size // 2 + 2) + '*', end='')
+        print(' ' * (self.size // 2 - 3) + ' *' + ' ' * (self.size + 3)
+              + ' ' * (self.size // 2 + self.size // 2 + self.size // 2 + 2) + '*', end='')
         print()
-        print(' ' * (self.size // 2) + ' *' + ' ' * self.size + ' ' * (self.size // 2 + self.size // 2 + self.size // 2) + '*', end='')
+        print(' ' * (self.size // 2) + ' *' + ' ' * self.size
+              + ' ' * (self.size // 2 + self.size // 2 + self.size // 2) + '*', end='')
         print()
         print(' ' * (self.size + 3) + '*  ' * (self.size // 2), end='')
         print()
         # else:
         #     print('  ', end='')
-        #     for i in range(self.size + 1):
+        #     for _ in range(self.size + 1):
         #         print('*', end='  ')
         #     print()
         #     print(' ', end='')
         #     print('*', end='')
-        #     for i in range(int(self.size) * 3 + 1):
+        #     for _ in range(int(self.size) * 3 + 1):
         #         print(' ', end='')
         #     print('*', end='')
         #     print()
-        #     for i in range(self.size):
+        #     for _ in range(self.size):
         #         print('*', end='')
-        #         for j in range(int(self.size) * 3 + 3):
+        #         for _ in range(int(self.size) * 3 + 3):
         #             print(' ', end='')
         #         print('*')
         #     print(' ', end='')
         #     print('*', end='')
-        #     for i in range(int(self.size) * 3 + 1):
+        #     for _ in range(int(self.size) * 3 + 1):
         #         print(' ', end='')
         #     print('*', end='')
         #     print()
         #     print('  ', end='')
-        #     for i in range(self.size + 1):
+        #     for _ in range(self.size + 1):
         #         print('*', end='  ')
         #     print()
 
@@ -110,50 +98,50 @@ class Oval(Figure):
         # if self.size < 5 or self.size > 10:
         print('\n' + ' ' * (self.size + 3) + '*  ' * (self.size // 2), end='')
         print()
-        print(' ' * (self.size // 2) + ' *' + ' ' * self.size + ' ' * (
-                    self.size // 2 + self.size // 2 + self.size // 2) + '*', end='')
+        print(' ' * (self.size // 2) + ' *' + ' ' * self.size
+              + ' ' * (self.size // 2 + self.size // 2 + self.size // 2) + '*', end='')
         print()
-        print(' ' * (self.size // 2 - 3) + ' *' + ' ' * (self.size + 3) + ' ' * (
-                    self.size // 2 + self.size // 2 + self.size // 2 + 2) + '*', end='')
+        print(' ' * (self.size // 2 - 3) + ' *' + ' ' * (self.size + 3)
+              + ' ' * (self.size // 2 + self.size // 2 + self.size // 2 + 2) + '*', end='')
         print()
-        for i in range(self.size // 2 + self.size * 3):
+        for _ in range(self.size // 2 + self.size * 3):
             print('*', end='')
-            for j in range(int(self.size) * 3 + self.size // 2 + 1):
+            for _ in range(int(self.size) * 3 + self.size // 2 + 1):
                 print(' ', end='')
             print('*')
         print(end='')
-        print(' ' * (self.size // 2 - 3) + ' *' + ' ' * (self.size + 3) + ' ' * (
-                    self.size // 2 + self.size // 2 + self.size // 2 + 2) + '*', end='')
+        print(' ' * (self.size // 2 - 3) + ' *' + ' ' * (self.size + 3)
+              + ' ' * (self.size // 2 + self.size // 2 + self.size // 2 + 2) + '*', end='')
         print()
-        print(' ' * (self.size // 2) + ' *' + ' ' * self.size + ' ' * (
-                    self.size // 2 + self.size // 2 + self.size // 2) + '*', end='')
+        print(' ' * (self.size // 2) + ' *' + ' ' * self.size
+              + ' ' * (self.size // 2 + self.size // 2 + self.size // 2) + '*', end='')
         print()
         print(' ' * (self.size + 3) + '*  ' * (self.size // 2), end='')
         print()
         # else:
         #     print('  ', end='')
-        #     for i in range(self.size + 1):
+        #     for _ in range(self.size + 1):
         #         print('*', end='  ')
         #     print()
         #     print(' ', end='')
         #     print('*', end='')
-        #     for i in range(int(self.size) * 3 + 1):
+        #     for _ in range(int(self.size) * 3 + 1):
         #         print(' ', end='')
         #     print('*', end='')
         #     print()
-        #     for i in range(self.size * 3):
+        #     for _ in range(self.size):
         #         print('*', end='')
-        #         for j in range(int(self.size) * 3 + 3):
+        #         for _ in range(int(self.size) * 3 + 3):
         #             print(' ', end='')
         #         print('*')
         #     print(' ', end='')
         #     print('*', end='')
-        #     for i in range(int(self.size) * 3 + 1):
+        #     for _ in range(int(self.size) * 3 + 1):
         #         print(' ', end='')
         #     print('*', end='')
         #     print()
         #     print('  ', end='')
-        #     for i in range(self.size + 1):
+        #     for _ in range(self.size + 1):
         #         print('*', end='  ')
         #     print()
 
@@ -173,7 +161,7 @@ class Square(Figure):
     def draw(self):
         """draw square"""
         print('\n*' + '*' * (self.size * 3), end='*')
-        for i in range(self.size//2 * 2, 1, -1):
+        for _ in range(self.size//2 * 2, 1, -1):
             print('\n*' + ' ' * (self.size * 3) + '*', end='')
         print('\n*' + '*' * (self.size * 3) + '*')
 
