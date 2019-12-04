@@ -66,11 +66,10 @@ class ReaderIhl():
 if __name__ == "__main__":
     READ_J = ReaderJson()
     BUF = READ_J.read("file.json")
-    print(BUF)
+    print(BUF, '\n')
 
     READ_X = ReaderXml()
     BUF = READ_X.read("file.xml")
-
     print(BUF.tag)
 
     LENGTH = len(BUF)
