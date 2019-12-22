@@ -10,7 +10,7 @@ def first_task():
     """
     Аналог 'ls'
     """
-    parent_path = "/home/user/"
+    parent_path = "/home/nicto/"
     folder_path = input("Введите название папки: ")
     if ".." in folder_path:
         print("Нет доступа")
