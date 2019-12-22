@@ -4,7 +4,7 @@
 
 from collections import OrderedDict
 import json
-import datetime as dt
+import datetime as format_date
 import openpyxl as xlsx
 from openpyxl.styles.fonts import Font
 from openpyxl.styles.borders import Border, Side
@@ -26,7 +26,7 @@ MONTHS = {"января": 1, "февраля": 2, "марта": 3, "апреля
 def sort_data(json_object):
     """Сортировка по дате"""
     list_data = list(json_object.items())
-    sort_by_month = lambda element_list: MONTHS[element_list[0].split(' ')[1]]
+    sort_by_month = lambda element: MONTHS[element[0].split(' ')[1]]
     list_data.sort()
     list_data.sort(key=sort_by_month)
     return OrderedDict(list_data)
@@ -35,8 +35,8 @@ def sort_data(json_object):
 def to_date(date):
     """Приведение к нужному формату даты"""
     day, month = date.split(' ')
-    year = dt.datetime.today().year
-    return dt.date(year, MONTHS[month], int(day))
+    year = format_date.datetime.today().year
+    return format_date.date(year, MONTHS[month], int(day))
 
 
 NAME_INDEX = 0
