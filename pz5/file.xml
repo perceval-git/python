@@ -1,10 +1,15 @@
 <?xml version="1.0"?>
-<CAT>
-  <NAME>Izzy</NAME>
-  <BREED>Siamese</BREED>
-  <AGE>6</AGE>
-  <ALTERED>yes</ALTERED>
-  <DECLAWED>no</DECLAWED>
-  <LICENSE>Izz138bod</LICENSE>
-  <OWNER>Colin Wilcox</OWNER>
-</CAT>
+  <Address Type="Shipping">
+    <Name>Ellen Adams</Name>
+    <Street>123 Maple Street</Street>
+    <City>Mill Valley</City>
+    <State>CA</State>
+    <Zip>10999</Zip>
+    <Country>USA</Country>
+    <Name>Tai Yee</Name>
+    <Street>8 Oak Avenue</Street>
+    <City>Old Town</City>
+    <State>PA</State>
+    <Zip>95819</Zip>
+    <Country>USA</Country>
+  </Address>
