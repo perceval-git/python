@@ -1,6 +1,6 @@
 import sys
 import argparse as ap
-from src.parser import parse_json
+from test_ddz_python.parser import parse_json
 from src.excel_write import write
 from src.data_json import load_data
 from src.date import sort_data
