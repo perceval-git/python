@@ -4,19 +4,33 @@
 
 from collections import OrderedDict
 import json
+import sys
 import datetime as format_date
 import openpyxl as xlsx
 from openpyxl.styles.fonts import Font
 from openpyxl.styles.borders import Border, Side
 from openpyxl.styles.alignment import Alignment
+import argparse as arg_pars
 
 
 # pylint: disable=too-few-public-methods, simplifiable-if-expression, not-an-iterable
+def arguments_pars():
+    arg_parser = arg_pars.ArgumentParser(description="""table732 input_file.json [-o output_file.xlsx]""",
+                                         prog='table732')
+    arg_parser.add_argument('input', help='input_file.json', type=arg_pars.FileType())
+    arg_parser.add_argument('-o', '--out', help='-o out.xlsx (default="table_732.xlsx")',
+                            default="out.xlsx", type=str)
+    return arg_parser
+
+
 def load_data(json_file) -> dict:
     """Загрузка данных из input_file.json"""
-    if json_file is not None:
-        with open(json_file, 'r') as file:
-            return json.load(file)
+    try:
+        if json_file:
+            with open(json_file, 'r') as file:
+                return json.load(file)
+    except IOError as ex:
+        print("Error:", ex)
 
 
 MONTHS = {"января": 1, "февраля": 2, "марта": 3, "апреля": 4, "мая": 5, "июня": 6,
@@ -72,27 +86,22 @@ def parse_notes(list_notes: dict, kvant=False) -> tuple:
             if teachers:
                 notes[0].append(Note(title, teachers))
     if kvants:
-        notes[1].append(Note("K", kvants))
+        notes[1].append(Note("KV", kvants))
     return tuple(notes) if notes[0] or notes[1] else None
 
 
-def parse_json(json_object: dict, kvant=False, date_filter=None) -> tuple:
+WEEKDAY = ["понедельник", "вторник", "среда", "четверг", "пятница", "суббота", "воскресенье"]
+
+
+def parse_json(json_object: dict) -> tuple:
     """Получение списка дней из input_file.json"""
     days = []
-    if date_filter:
-        date_start, date_end = date_filter.split(':')
-        date_start = to_date(date_start)
-        date_end = to_date(date_end)
     for date, value in json_object.items():
         date_object = to_date(date)
-        if date_filter:
-            if date_object < date_start:
-                continue
-            if date_object > date_end:
-                break
-        notes = parse_notes(value, kvant)
+        notes = parse_notes(value, kvant=True)
         if notes:
-            day = Day(date, notes)
+            weekday = WEEKDAY[date_object.weekday()]
+            day = Day(date + ' (' + weekday + ')', notes)
             days.append(day)
     return tuple(days) or None
 
@@ -111,16 +120,32 @@ class Note:
         self.title = title
         self.teachers = teachers
 
+    def __eq__(self, other):
+        return self.title == other.title and self.teachers == other.teachers \
+            if isinstance(other, Note) else False
+
 
 class Teacher:
     """Информация об преподователе + параметры"""
-
     def __init__(self, name, attributes):
         self.name = name
         self.groups = attributes[0]
         self.classroom = attributes[1]
         self.is_computer = attributes[2]
         self.is_kvant = True if 'КВАНТ' in self.classroom else False
+
+    def __eq__(self, other):
+        return self.name == other.name and self.groups == other.groups \
+               and self.classroom == other.classroom \
+               and self.is_computer == other.is_computer \
+            if isinstance(other, Teacher) else False
+
+    def __hash__(self):
+        hash_sum = hash(self.name) + hash(self.is_kvant) + \
+                   hash(self.classroom) + hash(self.is_computer)
+        for group in self.groups:
+            hash_sum += hash(group)
+        return hash(hash_sum)
 
 
 COLUMNS = {
@@ -152,12 +177,12 @@ class ExcelWriter:
         self.work_book = xlsx.Workbook()
 
 
-def write(days):
+def write(days, out):
     """Запись в output_file.xlsx"""
     parse_to_xlsx = ExcelWriter()
     work_book = parse_to_xlsx.work_book
     sheet = work_book.get_active_sheet()
-    # Поля для печати таблицы
+    # Поля для печати таблицы (исходя из размеров листа А4)
     sheet.page_margins.top = 0.764
     sheet.page_margins.bottom = 0.764
     for day in days:
@@ -168,10 +193,7 @@ def write(days):
     sheet.column_dimensions['B'].width = parse_to_xlsx.len_teacher + alignment_parameter
     sheet.column_dimensions['C'].width = parse_to_xlsx.len_groups + alignment_parameter
     sheet.column_dimensions['D'].width = parse_to_xlsx.len_classroom + alignment_parameter
-    file_name = input("Введите название файла или нажмите 'Enter'(out.xlsx): ")
-    if file_name == "":
-        file_name = "out.xlsx"
-    work_book.save(file_name)
+    work_book.save(out)
 
 
 def write_day(day, parse_to_xlsx):
