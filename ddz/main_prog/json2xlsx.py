@@ -14,13 +14,13 @@ import argparse as arg_pars
 
 
 # pylint: disable=too-few-public-methods, simplifiable-if-expression, not-an-iterable
-def arguments_pars():
-    arg_parser = arg_pars.ArgumentParser(description="""table732 input_file.json [-o output_file.xlsx]""",
-                                         prog='table732')
-    arg_parser.add_argument('input', help='input_file.json', type=arg_pars.FileType())
-    arg_parser.add_argument('-o', '--out', help='-o out.xlsx (default="table_732.xlsx")',
-                            default="out.xlsx", type=str)
-    return arg_parser
+def arguments_parser():
+    parser_arg = arg_pars.ArgumentParser(description="""input_file.json [-o output_file.xlsx]""", prog='tableK732')
+    parser_arg.add_argument('input', help='input_file.json', type=arg_pars.FileType())
+    parser_arg.add_argument('-o', '--out', help='-o out.xlsx ("timetableK732.xlsx")',
+                            default="timetableK732.xlsx", type=str)
+
+    return parser_arg
 
 
 def load_data(json_file) -> dict:
@@ -40,7 +40,7 @@ MONTHS = {"января": 1, "февраля": 2, "марта": 3, "апреля
 def sort_data(json_object):
     """Сортировка по дате"""
     list_data = list(json_object.items())
-    sort_by_month = lambda element: MONTHS[element[0].split(' ')[1]]
+    sort_by_month = lambda x: MONTHS[x[0].split(' ')[1]]
     list_data.sort()
     list_data.sort(key=sort_by_month)
     return OrderedDict(list_data)
@@ -101,7 +101,9 @@ def parse_json(json_object: dict) -> tuple:
         notes = parse_notes(value, kvant=True)
         if notes:
             weekday = WEEKDAY[date_object.weekday()]
-            day = Day(date + ' (' + weekday + ')', notes)
+            # Как лучше?
+            day = Day(date + ' - ' + weekday, notes)
+            # day = Day(date + ' (' + weekday + ')', notes)
             days.append(day)
     return tuple(days) or None
 
@@ -152,7 +154,8 @@ COLUMNS = {
     'title': 1,
     'teacher': 2,
     'groups': 3,
-    'class': 4
+    'audit': 4,
+    'audit_is_comp': 5
 }
 
 SHIFT_ROW = 50
@@ -174,6 +177,7 @@ class ExcelWriter:
         self.len_groups = 0
         self.len_teacher = 0
         self.len_classroom = 0
+        self.len_classroom_is_comp = 0
         self.work_book = xlsx.Workbook()
 
 
@@ -188,11 +192,11 @@ def write(days, out):
     for day in days:
         write_day(day, parse_to_xlsx)
     # Ширина столбцов + выравнивание
-    alignment_parameter = 2
-    sheet.column_dimensions['A'].width = parse_to_xlsx.len_title + alignment_parameter
-    sheet.column_dimensions['B'].width = parse_to_xlsx.len_teacher + alignment_parameter
-    sheet.column_dimensions['C'].width = parse_to_xlsx.len_groups + alignment_parameter
-    sheet.column_dimensions['D'].width = parse_to_xlsx.len_classroom + alignment_parameter
+    sheet.column_dimensions['A'].width = parse_to_xlsx.len_title + 2
+    sheet.column_dimensions['B'].width = parse_to_xlsx.len_teacher + 2
+    sheet.column_dimensions['C'].width = parse_to_xlsx.len_groups + 2
+    sheet.column_dimensions['D'].width = parse_to_xlsx.len_classroom - 4
+    sheet.column_dimensions['E'].width = parse_to_xlsx.len_classroom_is_comp + 8
     work_book.save(out)
 
 
@@ -205,14 +209,14 @@ def write_day(day, parse_to_xlsx):
     while parse_to_xlsx.cur_row % SHIFT_ROW == 0 \
             or (parse_to_xlsx.cur_row % SHIFT_ROW) + sum_rows > SHIFT_ROW:
         parse_to_xlsx.cur_row += 1
-    sheet.merge_cells(start_column=COLUMNS['title'], end_column=COLUMNS['class'],
+    sheet.merge_cells(start_column=COLUMNS['title'], end_column=COLUMNS['audit_is_comp'],
                       start_row=parse_to_xlsx.cur_row, end_row=parse_to_xlsx.cur_row)
     # Центровка и выделение даты
     cell = sheet.cell(row=parse_to_xlsx.cur_row, column=COLUMNS['title'])
     cell.value = day.date
     cell.alignment = Alignment(horizontal='center')
     cell.font = Font(bold=True)
-    for column in range(COLUMNS['title'], COLUMNS['class'] + 1):
+    for column in range(COLUMNS['title'], COLUMNS['audit_is_comp'] + 1):
         sheet.cell(row=parse_to_xlsx.cur_row, column=column).border = border('medium')
     parse_to_xlsx.cur_row += 1
     for kvant in day.kvants:
@@ -248,9 +252,16 @@ def write_teacher(teacher, parse_to_xlsx):
     cell.value = 'гр. ' + ', '.join(teacher.groups)
     cell.border = border('thin')
     parse_to_xlsx.len_groups = max(parse_to_xlsx.len_groups, len(cell.value))
-    cell = sheet.cell(row=parse_to_xlsx.cur_row, column=COLUMNS['class'])
-    cell_val = 'aуд. ' + str(teacher.classroom)
-    cell.value = cell_val + ' (комп.)' if teacher.is_computer else cell_val
+    cell = sheet.cell(row=parse_to_xlsx.cur_row, column=COLUMNS['audit'])
+    cell.value = 'aуд. ' + str(teacher.classroom)
+    #  + ' (комп.)' if teacher.is_computer else cell_val
     cell.border = border('thin')
     parse_to_xlsx.len_classroom = max(parse_to_xlsx.len_classroom, len(cell.value))
+
+    cell = sheet.cell(row=parse_to_xlsx.cur_row, column=COLUMNS['audit_is_comp'])
+    cell_val = ''
+    cell.value = ' КОМП' if teacher.is_computer else cell_val
+    cell.border = border('thin')
+    parse_to_xlsx.len_groups = max(parse_to_xlsx.len_groups, len(cell.value))
+
     parse_to_xlsx.cur_row += 1
