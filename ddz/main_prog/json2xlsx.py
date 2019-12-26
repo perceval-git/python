@@ -71,18 +71,17 @@ def parse_teachers(list_info):
     return teachers or None
 
 
-def parse_notes(list_notes: dict, kvant=False) -> tuple:
+def parse_notes(list_notes: dict) -> tuple:
     """Заметки к списку преподователей"""
     kvants = set()
     notes = [[], []]
     for title, value in list_notes.items():
         teachers = parse_teachers(value)
         if teachers:
-            if kvant:
-                for teacher in teachers:
-                    if teacher.is_kvant:
-                        kvants.add(teacher)
-                        teachers.remove(teacher)
+            for teacher in teachers:
+                if teacher.is_kvant:
+                    kvants.add(teacher)
+                    teachers.remove(teacher)
             if teachers:
                 notes[0].append(Note(title, teachers))
     if kvants:
@@ -98,12 +97,10 @@ def parse_json(json_object: dict) -> tuple:
     days = []
     for date, value in json_object.items():
         date_object = to_date(date)
-        notes = parse_notes(value, kvant=True)
+        notes = parse_notes(value)
         if notes:
             weekday = WEEKDAY[date_object.weekday()]
-            # Как лучше?
             day = Day(date + ' - ' + weekday, notes)
-            # day = Day(date + ' (' + weekday + ')', notes)
             days.append(day)
     return tuple(days) or None
 
@@ -154,8 +151,8 @@ COLUMNS = {
     'title': 1,
     'teacher': 2,
     'groups': 3,
-    'audit': 4,
-    'audit_is_comp': 5
+    'classroom': 4,
+    'classroom_is_comp': 5
 }
 
 SHIFT_ROW = 50
@@ -209,14 +206,14 @@ def write_day(day, parse_to_xlsx):
     while parse_to_xlsx.cur_row % SHIFT_ROW == 0 \
             or (parse_to_xlsx.cur_row % SHIFT_ROW) + sum_rows > SHIFT_ROW:
         parse_to_xlsx.cur_row += 1
-    sheet.merge_cells(start_column=COLUMNS['title'], end_column=COLUMNS['audit_is_comp'],
+    sheet.merge_cells(start_column=COLUMNS['title'], end_column=COLUMNS['classroom_is_comp'],
                       start_row=parse_to_xlsx.cur_row, end_row=parse_to_xlsx.cur_row)
     # Центровка и выделение даты
     cell = sheet.cell(row=parse_to_xlsx.cur_row, column=COLUMNS['title'])
     cell.value = day.date
     cell.alignment = Alignment(horizontal='center')
     cell.font = Font(bold=True)
-    for column in range(COLUMNS['title'], COLUMNS['audit_is_comp'] + 1):
+    for column in range(COLUMNS['title'], COLUMNS['classroom_is_comp'] + 1):
         sheet.cell(row=parse_to_xlsx.cur_row, column=column).border = border('medium')
     parse_to_xlsx.cur_row += 1
     for kvant in day.kvants:
@@ -252,16 +249,13 @@ def write_teacher(teacher, parse_to_xlsx):
     cell.value = 'гр. ' + ', '.join(teacher.groups)
     cell.border = border('thin')
     parse_to_xlsx.len_groups = max(parse_to_xlsx.len_groups, len(cell.value))
-    cell = sheet.cell(row=parse_to_xlsx.cur_row, column=COLUMNS['audit'])
+    cell = sheet.cell(row=parse_to_xlsx.cur_row, column=COLUMNS['classroom'])
     cell.value = 'aуд. ' + str(teacher.classroom)
-    #  + ' (комп.)' if teacher.is_computer else cell_val
     cell.border = border('thin')
     parse_to_xlsx.len_classroom = max(parse_to_xlsx.len_classroom, len(cell.value))
-
-    cell = sheet.cell(row=parse_to_xlsx.cur_row, column=COLUMNS['audit_is_comp'])
+    cell = sheet.cell(row=parse_to_xlsx.cur_row, column=COLUMNS['classroom_is_comp'])
     cell_val = ''
     cell.value = ' КОМП' if teacher.is_computer else cell_val
     cell.border = border('thin')
     parse_to_xlsx.len_groups = max(parse_to_xlsx.len_groups, len(cell.value))
-
     parse_to_xlsx.cur_row += 1
